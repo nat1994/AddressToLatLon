@@ -1,6 +1,5 @@
 import requests
 import argparse
-import re 
 import json
 import csv
 import os
