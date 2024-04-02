@@ -8,13 +8,22 @@ import os
 url1 = "https://www.onemap.gov.sg/api/common/elastic/search?searchVal="
 url2 = "&returnGeom=Y&getAddrDetails=Y"
 
+#Forms the url first and calls the convert_addr() function
+def get_addr(addr:str):
+    url = f"{url1}{addr}{url2}"
+    lat, lon = convert_addr(url)
+    return lat, lon
+
 #This function takes in an address (postal code OR block and street number) and returns the lat and lon
 def convert_addr(addr: str):
+    found = 0
     print(f"Processing the address now...")
-    response = requests.get(addr)
-
-    #Gets the number of found results
-    found = json.loads(response.text)["found"]
+    try:
+        response = requests.get(addr)
+        #Gets the number of found results
+        found = json.loads(response.text)["found"]
+    except Exception as e:
+        print(f"Error in getting a response from oneapi. {e}")
     
     if found != 0:
         r = json.loads(response.text)['results'][0]
@@ -28,7 +37,6 @@ def convert_addr(addr: str):
     else:
         print(f"The address provided is not valid. ")
         return None, None
-
 
 def process_csv(filePath: str):
     #read in the csv
@@ -87,7 +95,8 @@ if not csvMode: # Read in an address directly into the api
     if addr == None:
         print(f"Please input a value for addr!")
     else:
-        convert_addr(url1+addr+url2)
+        #convert_addr(url1+addr+url2)
+        get_addr(addr)
 
 else: #process a csv of postal codes
     csvFilePath = args.input
